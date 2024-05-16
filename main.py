@@ -2,10 +2,10 @@ print("Torch:")
 try:
     import torch
 
-    print("PyTorch version:", torch.__version__)  # 2.3.0+cu118
+    print("PyTorch version:", torch.__version__)
     print("CUDA is available for torch: ", torch.cuda.is_available())
-    print("PyTorch cuDNN version:", torch.backends.cudnn.version())  # 8700
-    print("Cuda version:", torch.version.cuda)  # 11.8
+    print("PyTorch cuDNN version:", torch.backends.cudnn.version())
+    print("Cuda version:", torch.version.cuda)
 except Exception as e:
     print(e)
 print()
@@ -40,11 +40,6 @@ try:
 
     print("Keras Version:", keras.__version__)
 
-    # Use torch backend
-    import os
-    os.environ["KERAS_BACKEND"] = "torch"
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
     model = models.Sequential()
     model.add(layers.Dense(64, activation="relu", input_shape=(32,)))
     model.add(layers.Dense(10, activation="softmax"))
@@ -57,4 +52,5 @@ try:
     model.fit(data, labels, epochs=10, batch_size=32)
 except Exception as e:
     print(e)
-print()
+
+print("Done")

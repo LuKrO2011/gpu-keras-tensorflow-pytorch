@@ -1,19 +1,165 @@
-For pytorch:
-https://gist.github.com/MihailCosmin/affa6b1b71b43787e9228c25fe15aeba
+= Nvidia-GPU + Keras + Tensorflow + Pytorch Installation Instructions
 
-Driver Version: 535.161.08
-Use: sudo apt install cuda-11-8 cuda-drivers=535.161.08-1 -y
+This guide sets up a local development environment for Keras, Tensorflow and Pytorch on an Nvidia GPU. As we use Docker/Podman the image can easily be shipped to other machines, as long as they have the following things installed:
 
-nvidia-smi will always show highest CUDA version, not installed one
+- Nvidia GPU
+- Driver Version 545
+- NVIDIA Container Toolkit
+
+This guide was created using the following machine settings:
+[source, bash]
+----
+hostnamectl
+Operating System: Ubuntu 22.04.4 LTS
+Kernel: Linux 6.5.0-28-generic
+Architecture: x86-64
+----
+
+[source, bash]
+----
+lspci | grep -i nvidia
+2b:00.0 VGA compatible controller: NVIDIA Corporation GA104 [GeForce RTX 3060 Ti Lite Hash Rate] (rev a1)
+----
+
+Concrete driver version:
+535.161.08
+
+Furthermore, we will install the following program versions:
+
+- Python 3.11
+- torch==2.3.0
+- tensorflow==2.16.1
+- keras==3.0.5
+
+== Install GPU Driver
+This part of the guide is based on the one of https://gist.github.com/MihailCosmin/affa6b1b71b43787e9228c25fe15aeba[MihailCosmin]:
+
+1. Verify your GPU:
+[source, bash]
+lspci | grep -i nvidia
+
+2. Remove previous GPU driver installations:
+[source, bash]
+sudo apt purge nvidia* -y
+sudo apt remove nvidia-* -y
+sudo rm /etc/apt/source, bashs.list.d/cuda*
+sudo apt autoremove -y && sudo apt autoclean -y
+sudo rm -rf /usr/local/cuda*
+
+ 3. Install the GPU driver:
+[source, bash]
+sudo apt update && sudo apt upgrade -y
+sudo apt install g++ freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libglu1-mesa libglu1-mesa-dev
+sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt update
+ubuntu-drivers devices
+sudo apt install libnvidia-common-545 libnvidia-gl-545 nvidia-driver-545 -y
+
+ 4. Reboot the system
+ 5. Verify your installation:
+[source, bash]
+nvidia-smi
+
+The driver version should start with 545. CUDA Version shows the latest possible CUDA version which can be installed, not the currently installed one. However, we do not need to install CUDA/CuDNN/TensorRT as those components only need to be installed inside the Docker/Podman container we will use.
+
+== Install NVIDIA Container Toolkit
+
+Install the https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html[NVIDIA Container Toolkit]
+[source, bash]
+sudo curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/source, bashs.list.d/nvidia-container-toolkit.list
+sudo sed -i -e '/experimental/ s/^#//g' /etc/apt/source, bashs.list.d/nvidia-container-toolkit.list
+sudo sudo apt-get update
+sudo sudo apt-get install -y nvidia-container-toolkit
+
+Now choose between Docker and Podman.
+
+=== Docker
+[Install Docker]
+
+
+https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker[Configure Docker]:
+[source, bash]
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+
+Confirm the installation:
+[source, bash]
+sudo docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi
+
+If no error is shown, your installation was successfully.
+
+=== Podman
+To install podman use the `ubuntu-install-podman.sh`.
+
+https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html#procedure[Configure Podman]:
+[source, bash]
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+
+Confirm the installation:
+[source, bash]
+podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable ubuntu nvidia-smi -L
+
+If the output shows your GPU, the installation was successfully.
+
+== Build your Docker/Podman image
+From no on we only work with Dockerfiles which can then be shipped to any machine fulfilling the above requirements.
+
+=== Dockerhub
+I recommend creating a https://hub.docker.com/[Dockerhub] account where you can push/pull images to save them and transfer them between machines.
+To login use the following commands. Please use either *podman* or *docker*!
+[source, bash]
+docker/podman login docker.io
+
+Once you are logged in successfully, use these commands to pull/push your images:
+[source, bash]
+docker/podman pull/push docker.io/USERNAME/IMAGENAME:VERSION
+
+=== Building an image
+To build an image with tensorflow, pytorch and keras, use this command:
+[source, bash]
+docker/podman build -t USERNAME/IMAGENAME:VERSION .
+
+Note that you can modify the requirements.txt as needed to adjust the installation.
+
+=== Testing the image
+To test the image, you can use the provided python file:
+[source, bash]
+sudo docker run --gpus all --rm IMAGENAME:VERSION python src/main.py
+
+OR
+[source, bash]
+podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable IMAGENAME:VERSION src/main.py
+
+To test the image interactively, use these commands:
+[source, bash]
+sudo docker run --gpus all -it --rm IMAGENAME:VERSION bash
+
+OR
+[source, bash]
+podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable IMAGENAME:VERSION bash
 
 
 
-For Tensorflow - docker:
-https://gist.github.com/MihailCosmin/affa6b1b71b43787e9228c25fe15aeba
-Bis driver installation: use 545
 
-https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
-Installing with Apt
-Configuring Docker
+
+
+
+== Outdated Notes
+Installing cuda locally:
+[source, bash]
+sudo apt install cuda-11-8 cuda-drivers=535.161.08-1 -y
+
+Docker
+[source, bash]
 sudo docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.config.list_physical_devices())"
 sudo docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu bash
+sudo docker run --gpus all -it --rm -v /home/lukas/PycharmProjects/code-readability-classifier/tests/res/raw_datasets/combined:/app/dataset rc-gpu bash
+python src/readability_classifier/main.py TRAIN -i dataset
+
+Podman
+[source, bash]
+podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu python -c "import tensorflow as tf; print(tf.config.list_physical_devices())"
+podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu bash
