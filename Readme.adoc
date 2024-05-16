@@ -77,28 +77,27 @@ sudo sudo apt-get install -y nvidia-container-toolkit
 Now choose between Docker and Podman.
 
 === Docker
-[Install Docker]
+1. To install podman use the `ubuntu-install-docker.sh` based on the https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository[official installation instructions].
 
-
-https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker[Configure Docker]:
+2. https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker[Configure Docker]:
 [source, bash]
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 
-Confirm the installation:
+3. Confirm the installation:
 [source, bash]
 sudo docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi
 
 If no error is shown, your installation was successfully.
 
 === Podman
-To install podman use the `ubuntu-install-podman.sh`.
+1. To install podman use the `ubuntu-install-podman.sh` based on https://askubuntu.com/questions/1414446/whats-the-recommended-way-of-installing-podman-4-in-ubuntu-22-04[this post].
 
-https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html#procedure[Configure Podman]:
+2. https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html#procedure[Configure Podman]:
 [source, bash]
 sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 
-Confirm the installation:
+3. Confirm the installation:
 [source, bash]
 podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable ubuntu nvidia-smi -L
 
@@ -140,10 +139,6 @@ sudo docker run --gpus all -it --rm IMAGENAME:VERSION bash
 OR
 [source, bash]
 podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable IMAGENAME:VERSION bash
-
-
-
-
 
 
 
