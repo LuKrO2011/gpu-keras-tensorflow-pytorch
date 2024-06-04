@@ -158,3 +158,6 @@ Podman
 [source, bash]
 podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu python -c "import tensorflow as tf; print(tf.config.list_physical_devices())"
 podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu bash
+
+Other driver versions:
+Also works with 525.147.05. Just replace 545 with 525 everywhere.
