@@ -160,4 +160,80 @@ podman run --rm --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu 
 podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable rc-gpu bash
 
 Other driver versions:
+
 Also works with 525.147.05. Just replace 545 with 525 everywhere.
+
+Exemplary cuda checker output (with 525):
+
+[source, bash]
+----
+podman run -it --rm --device nvidia.com/gpu=all localhost/lukro2011/rc-gpu:2 python src/readability_classifier/utils/cuda-checker.py
+Torch:
+PyTorch version: 2.3.0+cu121
+CUDA is available for torch:  True
+PyTorch cuDNN version: 8902
+Cuda version: 12.1
+
+Tensorflow:
+2024-06-04 08:43:20.924673: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-06-04 08:43:22.886002: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:22.889393: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:22.889565: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+Num GPUs Available:  1
+Is built with CUDA: True
+Tensorflow version: 2.16.1
+
+Tensorflow GPU test:
+2024-06-04 08:43:22.890825: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:22.890994: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:22.891163: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:24.906019: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:24.906230: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:24.906404: I external/local_xla/xla/stream_executor/cuda/cuda_executor.cc:998] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+2024-06-04 08:43:24.906749: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1928] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 4558 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3060 Ti, pci bus id: 0000:2b:00.0, compute capability: 8.6
+tf.Tensor(
+[[22. 28.]
+ [49. 64.]], shape=(2, 2), dtype=float32)
+
+Keras GPU test:
+/usr/local/lib/python3.11/dist-packages/keras/src/layers/core/dense.py:87: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense (Dense)                   │ (None, 64)             │         2,112 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 10)             │           650 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 2,762 (10.79 KB)
+ Trainable params: 2,762 (10.79 KB)
+ Non-trainable params: 0 (0.00 B)
+Epoch 1/10
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1717490606.595171      93 service.cc:145] XLA service 0x732afc007e30 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1717490606.595201      93 service.cc:153]   StreamExecutor device (0): NVIDIA GeForce RTX 3060 Ti, Compute Capability 8.6
+2024-06-04 08:43:26.624197: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:268] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2024-06-04 08:43:27.078566: I external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:465] Loaded cuDNN version 8902
+I0000 00:00:1717490607.612888      93 device_compiler.h:188] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+32/32 ━━━━━━━━━━━━━━━━━━━━ 2s 14ms/step - accuracy: 0.0929 - loss: 11.9733
+Epoch 2/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 537us/step - accuracy: 0.1034 - loss: 13.3227
+Epoch 3/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 497us/step - accuracy: 0.0970 - loss: 15.4647
+Epoch 4/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 519us/step - accuracy: 0.0993 - loss: 17.3379
+Epoch 5/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 519us/step - accuracy: 0.0995 - loss: 18.8004
+Epoch 6/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 513us/step - accuracy: 0.0992 - loss: 20.1477
+Epoch 7/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 545us/step - accuracy: 0.0977 - loss: 22.1397
+Epoch 8/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 569us/step - accuracy: 0.1136 - loss: 23.7979
+Epoch 9/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 542us/step - accuracy: 0.1029 - loss: 25.5751
+Epoch 10/10
+32/32 ━━━━━━━━━━━━━━━━━━━━ 0s 542us/step - accuracy: 0.1085 - loss: 27.6062
+----
