@@ -22,7 +22,7 @@ lspci | grep -i nvidia
 ----
 
 Concrete driver version:
-535.161.08
+545.23.08
 
 Furthermore, we will install the following program versions:
 
@@ -145,7 +145,7 @@ podman run --rm -it --device nvidia.com/gpu=all --security-opt=label=disable IMA
 == Outdated Notes
 Installing cuda locally:
 [source, bash]
-sudo apt install cuda-11-8 cuda-drivers=535.161.08-1 -y
+sudo apt install cuda-11-8 cuda-drivers=545.23.08-1 -y
 
 Docker
 [source, bash]
